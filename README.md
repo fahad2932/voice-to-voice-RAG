@@ -26,36 +26,19 @@ A fully local, modular voice-driven assistant that captures your microphone in r
 
 ## 🏗️ Architecture
 ```mermaid
-flowchart TB
-  %% Inputs
-  A[🎤 Microphone Input]
-  
-  %% Preprocessing
-  A --> B[🔴 Silero VAD<br/>(Voice Activity Detection)]
-  B --> C[▶️ Audio Segment<br/>(start/end detected)]
-  C --> D[🧹 Noise Reduction & Preprocessing]
-  
-  %% ASR + Command Parsing
-  D --> E[🦊 Whisper Transcription<br/>(faster-whisper)]
-  E --> F[🗣️ Command Parser]
-  F --> |"insert info ..."| G[📁 Append into vault.txt]
-  F --> |"print info"| H[📖 Read & return vault content]
-  F --> |"delete info"| I[🗑️ Clear vault<br/>(with optional confirm)]
-  F --> |(else query)| J[💡 Trigger RAG flow]
-  
-  %% RAG + Retrieval
-  J --> K[🏛️ Vault Embedding Lookup<br/>(sentence-transformers)]
-  K --> L[🔍 Top-K Semantic Retrieval<br/>(cosine sim)]
-  
-  %% LLM + TTS
-  L --> M[✍️ Prompt Construction<br/>(context + user query)]
-  M --> N[🤖 LLM Response<br/>(Mistral 7B via LM Studio API)]
-  N --> O[🔊 Text-to-Speech<br/>(OpenVoice TTS)]
-  O --> P[🔈 Speak Response Back to User]
+flowchart TD
+    A[🎤 Microphone Input] --> B[🔴 Silero VAD (Voice Activity Detection)]
+    B --> C[🔇 Audio Preprocessing (Denoise, Trim)]
+    C --> D[📝 Whisper Transcription (Faster-Whisper)]
+    D --> E{📘 Command Type?}
 
-    
-                              ▼
+    E -->|Insert Info| F[📂 Append to vault.txt]
+    E -->|Print Info| G[📄 Read & Speak vault.txt]
+    E -->|Delete Info| H[🗑️ Delete vault.txt (w/ confirm)]
+    E -->|Other Query| I[📚 Retrieve Relevant Context (Embeddings)]
 
-                              ▼
-🔊 Speak Response Back to User
-</details>
+    I --> J[🔍 Top-K Matching (Cosine Similarity)]
+    J --> K[🧾 Construct LLM Prompt (Context + User Query)]
+    K --> L[🧠 Generate Response (Mistral 7B via LM Studio)]
+    L --> M[🗣️ Text-to-Speech (OpenVoice TTS)]
+    M --> N[🔊 Speak Back to User]
