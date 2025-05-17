@@ -25,20 +25,46 @@ A fully local, modular voice-driven assistant that captures your microphone in r
   OpenVoice TTS for ultra-low latency spoken responses.
 
 ## 🏗️ Architecture
-Mic Input
-   ↓                ┌────────────┐
-Silero VAD ──► Segments ─► Noise Reduction
-   ↓                └────────────┘
-   ↓
-Transcriber (faster-whisper)
-   ↓
-Command Parser ──► Vault I/O (insert/read/delete)
-   │
-   └─ If not a command:
-         ↓
-   Retriever (embeddings + top-K)
-         ↓
-   LLM (Mistral 7B via LM Studio API)
-         ↓
-   TTS (OpenVoice) ──► Audio Output
-
+<details> <summary>📌 Click to Expand</summary>
+pgsql
+Copy
+Edit
+🎤 Microphone Input
+        │
+        ▼
+🧠 Silero VAD (Voice Activity Detection)
+        │
+        ▼
+🎧 Audio Segment (start/end detected)
+        │
+        ▼
+🧼 Noise Reduction & Preprocessing
+        │
+        ▼
+📝 Whisper Transcription (Faster-Whisper)
+        │
+        ▼
+🤖 Command Parser
+    ├── "insert info ..." ──► Append to vault.txt
+    ├── "print info"     ──► Read & return vault content
+    ├── "delete info"    ──► Clear vault (with optional confirm)
+    └── Else (query)     ──► Trigger RAG flow
+                              │
+                              ▼
+📚 Vault Embedding Lookup (Sentence-Transformers)
+                              │
+                              ▼
+🔍 Top-K Semantic Retrieval (cosine similarity)
+                              │
+                              ▼
+📦 Prompt Construction (context + user query)
+                              │
+                              ▼
+🧠 LLM Response (Mistral 7B via LM Studio API)
+                              │
+                              ▼
+🗣️ Text-to-Speech (OpenVoice TTS)
+                              │
+                              ▼
+🔊 Speak Response Back to User
+</details>
