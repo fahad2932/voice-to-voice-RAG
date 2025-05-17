@@ -1,4 +1,4 @@
-# Real-Time Voice Assistant (Emma)
+# Real-Time Voice Assistant 
 
 A fully local, modular voice-driven assistant that captures your microphone in real time, transcribes speech with Whisper (via faster-whisper/CTranslate2), manages contextual “vault” notes, retrieves relevant context via embeddings, queries a local LLM (Mistral 7B in LM Studio), and speaks responses using OpenVoice TTS—all orchestrated by simple voice commands.
 
