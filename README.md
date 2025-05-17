@@ -25,46 +25,37 @@ A fully local, modular voice-driven assistant that captures your microphone in r
   OpenVoice TTS for ultra-low latency spoken responses.
 
 ## 🏗️ Architecture
-<details> <summary>📌 Click to Expand</summary>
-pgsql
-Copy
-Edit
-🎤 Microphone Input
-        │
-        ▼
-🧠 Silero VAD (Voice Activity Detection)
-        │
-        ▼
-🎧 Audio Segment (start/end detected)
-        │
-        ▼
-🧼 Noise Reduction & Preprocessing
-        │
-        ▼
-📝 Whisper Transcription (Faster-Whisper)
-        │
-        ▼
-🤖 Command Parser
-    ├── "insert info ..." ──► Append to vault.txt
-    ├── "print info"     ──► Read & return vault content
-    ├── "delete info"    ──► Clear vault (with optional confirm)
-    └── Else (query)     ──► Trigger RAG flow
-                              │
+```mermaid
+flowchart TB
+  %% Inputs
+  A[🎤 Microphone Input]
+  
+  %% Preprocessing
+  A --> B[🔴 Silero VAD<br/>(Voice Activity Detection)]
+  B --> C[▶️ Audio Segment<br/>(start/end detected)]
+  C --> D[🧹 Noise Reduction & Preprocessing]
+  
+  %% ASR + Command Parsing
+  D --> E[🦊 Whisper Transcription<br/>(faster-whisper)]
+  E --> F[🗣️ Command Parser]
+  F --> |"insert info ..."| G[📁 Append into vault.txt]
+  F --> |"print info"| H[📖 Read & return vault content]
+  F --> |"delete info"| I[🗑️ Clear vault<br/>(with optional confirm)]
+  F --> |(else query)| J[💡 Trigger RAG flow]
+  
+  %% RAG + Retrieval
+  J --> K[🏛️ Vault Embedding Lookup<br/>(sentence-transformers)]
+  K --> L[🔍 Top-K Semantic Retrieval<br/>(cosine sim)]
+  
+  %% LLM + TTS
+  L --> M[✍️ Prompt Construction<br/>(context + user query)]
+  M --> N[🤖 LLM Response<br/>(Mistral 7B via LM Studio API)]
+  N --> O[🔊 Text-to-Speech<br/>(OpenVoice TTS)]
+  O --> P[🔈 Speak Response Back to User]
+
+    
                               ▼
-📚 Vault Embedding Lookup (Sentence-Transformers)
-                              │
-                              ▼
-🔍 Top-K Semantic Retrieval (cosine similarity)
-                              │
-                              ▼
-📦 Prompt Construction (context + user query)
-                              │
-                              ▼
-🧠 LLM Response (Mistral 7B via LM Studio API)
-                              │
-                              ▼
-🗣️ Text-to-Speech (OpenVoice TTS)
-                              │
+
                               ▼
 🔊 Speak Response Back to User
 </details>
